@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIDRA BOWL | Healthy Protein Bowls</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#f7f5ec;color:#17251c
+}
+header{
+ background:#244b35;color:white;padding:18px;
+ display:flex;justify-content:space-between;align-items:center;
+ position:sticky;top:0
+}
+.logo{font-size:25px;font-weight:bold}
+.logo span{color:#d9ef8a}
+button{
+ border:0;border-radius:25px;padding:12px 18px;
+ background:#244b35;color:white;font-weight:bold;cursor:pointer
+}
+.hero{
+ padding:55px 20px;text-align:center;
+ background:#e5edcf
+}
+.hero h1{font-size:48px;color:#244b35}
+.hero p{font-size:18px}
+section{padding:35px 20px;max-width:1100px;margin:auto}
+h2{font-size:32px;color:#244b35}
+.menu{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+ gap:18px
+}
+.card{
+ background:white;padding:20px;border-radius:20px;
+ box-shadow:0 4px 12px #00000010
+}
+.card .emoji{font-size:55px}
+.card h3{margin-bottom:5px}
+.price{font-size:22px;font-weight:bold}
+.card button{background:#d9ef8a;color:#17251c}
+.cart,.payment,.form{
+ background:white;padding:22px;border-radius:20px;margin-bottom:20px
+}
+.cart-item{
+ display:flex;justify-content:space-between;
+ padding:10px;border-bottom:1px solid #ddd
+}
+.total{font-size:23px;font-weight:bold}
+.qr{
+ width:100%;max-width:350px;display:block;margin:20px auto
+}
+input,select,textarea{
+ width:100%;padding:12px;margin:8px 0;
+ border:1px solid #ccc;border-radius:10px;font-size:16px
+}
+label{font-weight:bold}
+.notice{
+ background:#edf5df;padding:15px;border-radius:12px;
+ line-height:1.6
+}
+footer{
+ background:#17251c;color:white;text-align:center;padding:25px
+}
+@media(max-width:600px){
+ .hero h1{font-size:35px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">VIDRA <span>BOWL</span></div>
+ <button onclick="location.href='#order'">Order Now</button>
+</header>
+
+<div class="hero">
+ <h1>Fuel Your Day.<br>One Bowl at a Time.</h1>
+ <p>Fresh • Healthy • Protein Packed</p>
+ <button onclick="location.href='#menu'">Explore Menu</button>
+</div>
+
+<section id="menu">
+<h2>Our Signature Bowls</h2>
+<div class="menu" id="menuItems"></div>
+</section>
+
+<section id="order">
+<h2>Your Order</h2>
+
+<div class="cart">
+ <h3>Shopping Cart</h3>
+ <div id="cartItems">Your cart is empty.</div>
+ <p class="total">Total: ₹<span id="total">0</span></p>
+</div>
+
+<div class="payment">
+ <h2>PhonePe Payment</h2>
+ <p>Scan the QR code using PhonePe / Google Pay / UPI.</p>
+
+ <img class="qr" src="payment-qr.png"
+ alt="VIDRA BOWL PhonePe Payment QR Code">
+
+ <div class="notice">
+ Please pay the order amount shown above.
+ After payment, upload your payment screenshot
+ in the order form.
+ </div>
+</div>
+
+<form class="form" id="orderForm">
+<h2>Customer Details</h2>
+
+<label>Full Name</label>
+<input id="customerName" required>
+
+<label>Mobile Number</label>
+<input id="mobile" type="tel" pattern="[0-9]{10}" required>
+
+<label>Order Type</label>
+<select id="orderType">
+<option>Pickup</option>
+<option>Delivery</option>
+</select>
+
+<label>Delivery Address / Pickup Note</label>
+<textarea id="address"></textarea>
+
+<label>Payment Screenshot</label>
+<input id="paymentProof" type="file" accept="image/*" required>
+
+<label>Extra Request</label>
+<textarea id="note"></textarea>
+
+<button type="submit">Submit Order on WhatsApp</button>
+</form>
+</section>
+
+<section>
+<h2>About VIDRA BOWL</h2>
+<p>
+VIDRA BOWL brings fresh, tasty and thoughtfully balanced
+protein bowls to your everyday lifestyle.
+Enjoy delicious meals for your gym, college and work days.
+</p>
+</section>
+
+<footer>
+<h2 style="color:#d9ef8a">VIDRA BOWL</h2>
+<p>Healthy Food. Big Energy.</p>
+<p>Hassan, Karnataka</p>
+<p>© 2026 VIDRA BOWL</p>
+</footer>
+
+<script>
+const menu=[
+ {id:1,name:"Veg Protein Bowl",price:129,emoji:"🥦"},
+ {id:2,name:"Egg Protein Bowl",price:149,emoji:"🥚"},
+ {id:3,name:"Paneer Protein Bowl",price:169,emoji:"🧀"},
+ {id:4,name:"Chicken Protein Bowl",price:199,emoji:"🍗"},
+ {id:5,name:"Premium Chicken Bowl",price:249,emoji:"🍲"},
+ {id:6,name:"Fruit Smoothie",price:99,emoji:"🥤"},
+ {id:7,name:"Protein Smoothie",price:149,emoji:"🍓"}
+];
+
+let cart={};
+
+function displayMenu(){
+ document.getElementById("menuItems").innerHTML=
+ menu.map(item=>`
+ <div class="card">
+ <div class="emoji">${item.emoji}</div>
+ <h3>${item.name}</h3>
+ <p class="price">₹${item.price}</p>
+ <button onclick="addToCart(${item.id})">+ Add</button>
+ </div>
+ `).join("");
+}
+
+function addToCart(id){
+ cart[id]=(cart[id]||0)+1;
+ displayCart();
+}
+
+function changeQty(id,change){
+ cart[id]+=change;
+ if(cart[id]<=0)delete cart[id];
+ displayCart();
+}
+
+function displayCart(){
+ let total=0;
+ let html="";
+
+ Object.keys(cart).forEach(id=>{
+ let item=menu.find(x=>x.id==id);
+ let amount=item.price*cart[id];
+ total+=amount;
+
+ html+=`
+ <div class="cart-item">
+ <div>${item.name}<br>
+ ₹${item.price} × ${cart[id]} = ₹${amount}</div>
+ <div>
+ <button type="button" onclick="changeQty(${id},-1)">−</button>
+ <button type="button" onclick="changeQty(${id},1)">+</button>
+ </div>
+ </div>`;
+ });
+
+ document.getElementById("cartItems").innerHTML=
+ html||"Your cart is empty.";
+
+ document.getElementById("total").innerText=total;
+}
+
+document.getElementById("orderForm").addEventListener("submit",function(e){
+ e.preventDefault();
+
+ if(Object.keys(cart).length===0){
+ alert("Please add items to your cart.");
+ return;
+ }
+
+ let total=0;
+ let items="";
+
+ Object.keys(cart).forEach(id=>{
+ let item=menu.find(x=>x.id==id);
+ total+=item.price*cart[id];
+ items+=item.name+" x "+cart[id]+"\n";
+ });
+
+ let message=
+ "VIDRA BOWL ORDER\n"+
+ "Name: "+document.getElementById("customerName").value+"\n"+
+ "Mobile: "+document.getElementById("mobile").value+"\n"+
+ "Order Type: "+document.getElementById("orderType").value+"\n"+
+ "Address: "+document.getElementById("address").value+"\n"+
+ "Items:\n"+items+
+ "Total: ₹"+total+"\n"+
+ "Payment: PhonePe QR\n"+
+ "Payment screenshot selected. Please verify payment.\n"+
+ "Extra Request: "+document.getElementById("note").value;
+
+ alert("WhatsApp will open. Please attach your payment screenshot before sending.");
+
+ window.open(
+ "https://wa.me/918970240304?text="+encodeURIComponent(message),
+ "_blank"
+ );
+});
+
+displayMenu();
+displayCart();
+</script>
+
+</body>
+</html>
